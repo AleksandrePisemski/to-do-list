@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Task from './Components/Task.jsx'
 
-// что добавила иишка
+
 
 
 function test(){
@@ -45,7 +45,7 @@ function App() {
 
   return (
 
-    // что добавила иишка
+    
 
     <section className="flex flex-col w-full h-full bg-white items-center p-5 gap-5 rounded-2xl">
 
@@ -77,7 +77,6 @@ function App() {
         <div className="flex flex-col  h-full border-black rounded-lg border-2  bg-white p-2 gap-3 ">
           <h1 className="text-center font-bold text-xl underline underline-offset-4">TO DO</h1>
 
-          {/* добавила иишка */}
 
 
           {tasks.map((task, index) => (
@@ -90,7 +89,6 @@ function App() {
             />
           ))}
 
-          {/* добавила иишка */}
 
 
 
@@ -103,7 +101,6 @@ function App() {
         <div className="flex flex-col  h-full border-black rounded-lg border-2  bg-white p-2 gap-3">
           <h1 className="text-center font-bold text-xl underline underline-offset-4">DONE</h1>
 
-          {/* добавила иишка */}
           {doneTasks.map((task, index) => (
             <Task
               key={index}
@@ -114,7 +111,6 @@ function App() {
               }}
             />
           ))}
-          {/* добавила иишка */}
         </div>
 
 
