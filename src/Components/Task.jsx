@@ -16,7 +16,7 @@ export default function Task({ task, deleteTask, editTask, doneTask, isDone }) {
 
     return (
         <div className="flex items-center border-2 rounded-lg border-gray-500 p-2 justify-between">
-            {/* добавила иишка */}
+            
             {isEditing ? (
                 <input
                 className='w-1/3'
