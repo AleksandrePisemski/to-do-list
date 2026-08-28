@@ -1,26 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Task from './Components/Task.jsx'
-
-
-
-
-function test(){
-}
-
-test()
-
-
-
+import {DragDropProvider} from '@dnd-kit/react'
+import Column from './Components/column.jsx'
 function App() {
 
   const [input, setInput] = useState("")
   const [tasks, setTasks] = useState([]) 
   const [doneTasks, setDoneTasks] = useState([])
+  const [target, setTarget] = useState("TO DO")
+
 
   const addTask = () => {
     if (input.trim() === "") return
-    
-    setTasks([...tasks, input]) //tasks = [...tasks,input] 
+    let taskObject = {name: input.trim(), column: "TO DO"}
+    setTasks([...tasks, taskObject])
     setInput("")
   }
 
@@ -31,7 +24,7 @@ function App() {
   const editTask = (index, newText) => {
     setTasks(
       tasks.map((task, i) =>
-        i === index ? newText : task
+        i === index ? {...task, name: newText} : task
       )
     )
   }
@@ -39,14 +32,28 @@ function App() {
   const moveToDone = (index) => {
     const task = tasks[index] 
 
-    setDoneTasks([...doneTasks, task])
+    setDoneTasks([...doneTasks, task.name])
     setTasks(tasks.filter((_, i) => i !== index))
   }
 
+  const editColumn = (index, newColumn) => {
+
+    setTasks(
+      tasks.map((task, i) =>
+      i === index ? {...task, column: newColumn} : task
+    ))
+  }
+
+  // const useEffect((index) => {
+  //   editColumn(index, target)
+
+  // },[target])
+
+
+
+  const columns = ["TO DO", "IN PROGRESS", "DONE"]
   return (
-
     
-
     <section className="flex flex-col w-full h-full bg-white items-center p-5 gap-5 rounded-2xl">
 
 
@@ -72,56 +79,41 @@ function App() {
 
       <div className="grid grid-cols-3 gap-20 h-full w-full">
 
+        <DragDropProvider
+          onDragEnd={(event) => {
+          if(event.canceled) return;
 
+          const {target} = event.operation
+          setTarget(target.id)
+        }}
+        
+        >
+      {columns.map((column, index) => (
+        <Column key={index} id={column}>
 
-        <div className="flex flex-col  h-full border-black rounded-lg border-2  bg-white p-2 gap-3 ">
-          <h1 className="text-center font-bold text-xl underline underline-offset-4">TO DO</h1>
-
-
-
-          {tasks.map((task, index) => (
-            <Task
-              key={index} //key should be unique for each element in the array
-              task={task} //task1
+          {tasks.map((task, index) => {
+            return (
+              column === task.column && <Task
+              key={index}
+              task={task.name}
               deleteTask={() => deleteTask(index)}
               editTask={(newText) => editTask(index, newText)}
               doneTask={() => moveToDone(index)}
             />
-          ))}
-
-
-
-
-        </div>
-
-        <div className="flex flex-col  h-full border-black rounded-lg border-2  bg-white p-2 gap-3">
-          <h1 className="text-center font-bold text-xl underline underline-offset-4">IN PROGRESS</h1>
-        </div>
-
-        <div className="flex flex-col  h-full border-black rounded-lg border-2  bg-white p-2 gap-3">
-          <h1 className="text-center font-bold text-xl underline underline-offset-4">DONE</h1>
-
+          )
+          })}
           {doneTasks.map((task, index) => (
-            <Task
-              key={index}
-              task={task}
-              isDone={true}
-              deleteTask={() => {
-                setDoneTasks(doneTasks.filter((_, i) => i !== index))
-              }}
+            <Task key={index} task={task} isDone={true} deleteTask={() => {
+              setDoneTasks(doneTasks.filter((_, i) => i !== index))
+            }}
             />
           ))}
-        </div>
 
+        </Column>
+      ))}
+      </DragDropProvider>
 
       </div>
-
-
-
-
-
-
-
     </section>
   )
 }

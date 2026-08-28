@@ -1,27 +1,38 @@
 import { useState } from 'react'
 import { TrashIcon } from '@heroicons/react/24/outline'
+import { useDraggable } from '@dnd-kit/react'
+
+
 
 export default function Task({ task, deleteTask, editTask, doneTask, isDone }) {
     const [isEditing, setIsEditing] = useState(false)
     const [editText, setEditText] = useState(task)
+    const { ref } = useDraggable({
+        id: 'draggable',
+    });
 
-    function handleSave(){
+
+
+
+
+
+    function handleSave() {
         editTask(editText)
         setIsEditing(false)
     }
 
-    function handleEdit(){
+    function handleEdit() {
         setIsEditing(true)
     }
 
     return (
-        <div className="flex items-center border-2 rounded-lg border-gray-500 p-2 justify-between">
-            
+        <div className="flex items-center border-2 rounded-lg border-gray-500 p-2 justify-between" ref={ref}>
+
             {isEditing ? (
                 <input
-                className='w-1/3'
+                    className='w-1/3'
                     value={editText}
-                    onChange={(e) => {console.log(editText);return setEditText(e.target.value)}}
+                    onChange={(e) => { console.log(editText); return setEditText(e.target.value) }}
                 />
             ) : (
                 <h1 className="max-w-1/3 overflow-x-auto">{task}</h1>
@@ -34,12 +45,12 @@ export default function Task({ task, deleteTask, editTask, doneTask, isDone }) {
                     <>
                         {isEditing ? (
                             <button onClick={handleSave} className="text-black border border-gray-500 rounded-lg h-10 w-15 font-bold">Save</button>)
-                            : 
+                            :
                             (
-                            <button onClick={handleEdit} className="text-black border border-gray-500 rounded-lg h-10 w-15 font-bold">Edit</button>)
+                                <button onClick={handleEdit} className="text-black border border-gray-500 rounded-lg h-10 w-15 font-bold">Edit</button>)
                         }
 
-                        
+
 
                         <button
                             onClick={doneTask}
