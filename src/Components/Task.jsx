@@ -4,11 +4,19 @@ import { useDraggable } from '@dnd-kit/react'
 
 
 
-export default function Task({ task, deleteTask, editTask, doneTask, isDone }) {
+
+
+
+
+
+
+
+
+export default function Task({ task, deleteTask, editTask, doneTask }) {
     const [isEditing, setIsEditing] = useState(false)
-    const [editText, setEditText] = useState(task)
+    const [editText, setEditText] = useState(task.name)
     const { ref } = useDraggable({
-        id: 'draggable',
+        id: task.id,
     });
 
 
@@ -32,16 +40,16 @@ export default function Task({ task, deleteTask, editTask, doneTask, isDone }) {
                 <input
                     className='w-1/3'
                     value={editText}
-                    onChange={(e) => { console.log(editText); return setEditText(e.target.value) }}
+                    onChange={e =>  setEditText(e.target.value)}
                 />
             ) : (
-                <h1 className="max-w-1/3 overflow-x-auto">{task}</h1>
+                <h1 className="max-w-1/3 overflow-x-auto">{task.name}</h1>
             )}
 
 
 
             <div className="flex gap-5">
-                {!isDone && (
+                {!(task.column === "DONE") && (
                     <>
                         {isEditing ? (
                             <button onClick={handleSave} className="text-black border border-gray-500 rounded-lg h-10 w-15 font-bold">Save</button>)

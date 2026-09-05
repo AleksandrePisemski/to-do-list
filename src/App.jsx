@@ -1,59 +1,58 @@
 import { useState, useEffect } from 'react'
 import Task from './Components/Task.jsx'
-import {DragDropProvider} from '@dnd-kit/react'
+import { DragDropProvider } from '@dnd-kit/react'
 import Column from './Components/column.jsx'
+
+
+
 function App() {
 
-  const [input, setInput] = useState("")
-  const [tasks, setTasks] = useState([]) 
-  const [doneTasks, setDoneTasks] = useState([])
-  const [target, setTarget] = useState("TO DO")
-
-
-  const addTask = () => {
-    if (input.trim() === "") return
-    let taskObject = {name: input.trim(), column: "TO DO"}
-    setTasks([...tasks, taskObject])
-    setInput("")
-  }
-
-  const deleteTask = (index) => {
-    setTasks(tasks.filter((_, i) => i !== index))
-  }
-
-  const editTask = (index, newText) => {
-    setTasks(
-      tasks.map((task, i) =>
-        i === index ? {...task, name: newText} : task
-      )
-    )
-  }
-
-  const moveToDone = (index) => {
-    const task = tasks[index] 
-
-    setDoneTasks([...doneTasks, task.name])
-    setTasks(tasks.filter((_, i) => i !== index))
-  }
-
-  const editColumn = (index, newColumn) => {
-
-    setTasks(
-      tasks.map((task, i) =>
-      i === index ? {...task, column: newColumn} : task
-    ))
-  }
-
-  // const useEffect((index) => {
-  //   editColumn(index, target)
-
-  // },[target])
 
 
 
   const columns = ["TO DO", "IN PROGRESS", "DONE"]
+  const [input, setInput] = useState("")
+  const [tasks, setTasks] = useState(() => {
+    const savedTasks = localStorage.getItem("tasks")
+    return savedTasks ? JSON.parse(savedTasks) : []
+  })
+
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks))
+  }, [tasks])
+
+
+  const addTask = () => {
+    let formatedInput = input.trim()
+    if (formatedInput === "") return
+    let taskObject = { id: crypto.randomUUID(), name: formatedInput, column: "TO DO" }
+    setTasks([...tasks, taskObject])
+    setInput("")
+  }
+
+  const deleteTask = (id) => {
+    setTasks(tasks.filter((task) => task.id !== id))
+  }
+
+  const editTask = (id, newText) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, name: newText } : task
+      )
+    )
+  }
+
+  const editColumn = (id, newColumn) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, column: newColumn } : task
+      ))
+  }
+
+
+
   return (
-    
+
     <section className="flex flex-col w-full h-full bg-white items-center p-5 gap-5 rounded-2xl">
 
 
@@ -77,41 +76,37 @@ function App() {
 
 
 
-      <div className="grid grid-cols-3 gap-20 h-full w-full">
+      <div className="flex md:flex-row flex-col justify-center gap-3 md:gap-20 h-full ">
 
         <DragDropProvider
           onDragEnd={(event) => {
-          if(event.canceled) return;
+            if (event.canceled) return;
+            const { target, source } = event.operation
+            if (!target || !source) return;
+            let newColumn = target.id
+            let taskid = source.id
+            editColumn(taskid, newColumn)
+          }}
 
-          const {target} = event.operation
-          setTarget(target.id)
-        }}
-        
         >
-      {columns.map((column, index) => (
-        <Column key={index} id={column}>
+          {columns.map((column, index) => (
+            <Column key={index} id={column}>
 
-          {tasks.map((task, index) => {
-            return (
-              column === task.column && <Task
-              key={index}
-              task={task.name}
-              deleteTask={() => deleteTask(index)}
-              editTask={(newText) => editTask(index, newText)}
-              doneTask={() => moveToDone(index)}
-            />
-          )
-          })}
-          {doneTasks.map((task, index) => (
-            <Task key={index} task={task} isDone={true} deleteTask={() => {
-              setDoneTasks(doneTasks.filter((_, i) => i !== index))
-            }}
-            />
+              {tasks.map((task) => {
+                return (
+                  column === task.column && <Task
+                    key={task.id}
+                    task={task}
+                    deleteTask={() => deleteTask(task.id)}
+                    editTask={(newText) => editTask(task.id, newText)}
+                    doneTask={() => editColumn(task.id, "DONE")}
+                  />
+                )
+              })}
+
+            </Column>
           ))}
-
-        </Column>
-      ))}
-      </DragDropProvider>
+        </DragDropProvider>
 
       </div>
     </section>
