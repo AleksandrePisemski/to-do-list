@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
-import Task from './Components/Task.jsx'
-import { DragDropProvider } from '@dnd-kit/react'
+import Task, { TaskUI } from './Components/Task.jsx'
+import { DragDropProvider, DragOverlay } from '@dnd-kit/react'
 import Column from './Components/column.jsx'
+import { createPortal } from 'react-dom'
 
 function App() {
 
   const columns = ["TO DO", "IN PROGRESS", "DONE"]
 
   const [input, setInput] = useState("")
+  const [activeTask, setActiveTask] = useState(null)
 
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem("tasks")
@@ -90,7 +92,15 @@ function App() {
       <div className="flex md:flex-row flex-col justify-center gap-3 md:gap-20 w-full">
 
         <DragDropProvider
+          onDragStart={(event) => {
+            const { source } = event.operation
+            if (source && source.id) {
+              const task = tasks.find(t => t.id === source.id)
+              if (task) setActiveTask(task)
+            }
+          }}
           onDragEnd={(event) => {
+            setActiveTask(null)
 
             if (event.canceled) return
 
@@ -127,6 +137,21 @@ function App() {
             </Column>
 
           ))}
+
+          {createPortal(
+            <DragOverlay dropAnimation={null}>
+              {activeTask ? (
+                <TaskUI
+                  task={activeTask}
+                  isOverlay={true}
+                  deleteTask={() => {}}
+                  editTask={() => {}}
+                  doneTask={() => {}}
+                />
+              ) : null}
+            </DragOverlay>,
+            document.body
+          )}
 
         </DragDropProvider>
 
